@@ -29,18 +29,25 @@
             padding: 0;
         }
 
-    body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('Thiết kế chưa có tên.png');
-    background-size: cover;       /* Scale ảnh để phủ hết màn hình */
-    background-repeat: no-repeat; /* Không lặp lại ảnh */
-    background-position: center;  /* Căn giữa ảnh */
-    color: var(--dark-gray);
-    line-height: 1.5;
-    padding: 0;
-    margin: 0;
-    height: 100vh; /* Đảm bảo body chiếm toàn bộ chiều cao màn hình */
-}
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: url('Thiết kế chưa có tên.png');
+            background-size: cover;
+            /* Scale ảnh để phủ hết màn hình */
+            background-repeat: no-repeat;
+            /* Không lặp lại ảnh */
+            background-position: center;
+            /* Căn giữa ảnh */
+            background-attachment: fixed;
+
+
+            color: var(--dark-gray);
+            line-height: 1.5;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            /* Đảm bảo body chiếm toàn bộ chiều cao màn hình */
+        }
 
 
         .header {
@@ -667,6 +674,55 @@
             height: 34px;
             object-fit: contain;
         }
+
+        /* Thêm vào phần style */
+        .clock {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: white;
+            margin-right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        /* Thay đổi CSS cho days-container */
+        .days-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+
+        .day-card {
+            width: 100%;
+            min-width: 250px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .days-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .days-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 800px) {
+            .days-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .days-container {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -677,6 +733,11 @@
             <span>HiderTodoList</span>
         </div>
         <div class="user-menu">
+            <div class="avatar">H</div>
+        </div>
+        <!-- Thay thế phần user-menu trong thẻ header -->
+        <div class="user-menu">
+            <div id="clock" class="clock">00:00:00</div>
             <div class="avatar">H</div>
         </div>
     </header>
@@ -1297,6 +1358,28 @@
 
         // Initialize the app
         init();
+        // Thêm vào phần script, trước function init()
+
+        // Update clock
+        function updateClock() {
+            const clockElement = document.getElementById('clock');
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Modify init function
+        function init() {
+            renderDays();
+            checkMorningGreeting();
+            setupAnnotations();
+
+            // Start clock
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
     </script>
 </body>
 
