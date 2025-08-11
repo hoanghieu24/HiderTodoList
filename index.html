@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="HiderBuilding.png">
     <title>HiderTodoList</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -475,43 +476,51 @@
 
         /* Celebration styles */
         .celebration {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.7);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s;
-}
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
 
-.celebration.active {
-    opacity: 1;
-    pointer-events: auto;
-}
+        .celebration.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-.celebration-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    transform: scale(0.8);
-    animation: celebrationPop 0.5s forwards;
-    position: relative;
-    z-index: 2001;
-}
+        .celebration-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            animation: celebrationPop 0.5s forwards;
+            position: relative;
+            z-index: 2001;
+        }
 
-@keyframes celebrationPop {
-    0% { transform: scale(0.8); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
+        @keyframes celebrationPop {
+            0% {
+                transform: scale(0.8);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
 
         .celebration-title {
             font-size: 24px;
@@ -647,19 +656,26 @@
             border-left-color: var(--done);
             opacity: 0.8;
         }
+
+        .logo-img {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+        }
     </style>
 </head>
 
 <body>
     <header class="header">
         <div class="logo">
-            <i class="fas fa-check-double"></i>
+            <img src="HiderBuilding-Photoroom.png" alt="logo" class="logo-img">
             <span>HiderTodoList</span>
         </div>
         <div class="user-menu">
             <div class="avatar">H</div>
         </div>
     </header>
+
 
     <div class="container">
         <button class="add-day-btn" onclick="showAddDayModal()">
@@ -736,12 +752,12 @@
 
     <!-- Celebration Modal -->
     <div class="celebration" id="celebration">
-    <div class="celebration-content">
-        <div class="celebration-title">Chúc mừng! 🎉</div>
-        <div class="celebration-message">Bạn đã hoàn thành tất cả công việc trong ngày này! Thật tuyệt vời!</div>
-        <button class="btn btn-primary" onclick="hideCelebration()">Tuyệt vời!</button>
+        <div class="celebration-content">
+            <div class="celebration-title">Chúc mừng! 🎉</div>
+            <div class="celebration-message">Bạn đã hoàn thành tất cả công việc trong ngày này! Thật tuyệt vời!</div>
+            <button class="btn btn-primary" onclick="hideCelebration()">Tuyệt vời!</button>
+        </div>
     </div>
-</div>
 
     <!-- Welcome Message -->
     <div class="welcome-message" id="welcome-message">
@@ -1124,27 +1140,27 @@
 
         // Check for completed days (all tasks done)
         function checkForCompletedDays() {
-    state.days.forEach(day => {
-        // Bỏ qua nếu không có task nào
-        if (day.tasks.length === 0) return;
-        
-        // Kiểm tra xem tất cả task đều là 'done'
-        const allDone = day.tasks.every(t => t.status === 'done');
-        
-        if (allDone) {
-            // Kiểm tra xem ngày này đã được chúc mừng chưa
-            if (!day.celebrated) {
-                celebrateCompletion(day.id);
-                day.celebrated = true;
-                saveState();
-            }
-        } else {
-            // Reset trạng thái celebrated nếu có task chưa hoàn thành
-            day.celebrated = false;
-            saveState();
+            state.days.forEach(day => {
+                // Bỏ qua nếu không có task nào
+                if (day.tasks.length === 0) return;
+
+                // Kiểm tra xem tất cả task đều là 'done'
+                const allDone = day.tasks.every(t => t.status === 'done');
+
+                if (allDone) {
+                    // Kiểm tra xem ngày này đã được chúc mừng chưa
+                    if (!day.celebrated) {
+                        celebrateCompletion(day.id);
+                        day.celebrated = true;
+                        saveState();
+                    }
+                } else {
+                    // Reset trạng thái celebrated nếu có task chưa hoàn thành
+                    day.celebrated = false;
+                    saveState();
+                }
+            });
         }
-    });
-}
         function getEmptyStatusMessage(status) {
             const messages = {
                 pending: "Không có gì đang chờ cả! Thêm việc đi nào!",
@@ -1157,25 +1173,25 @@
 
         // Celebrate completion
         function celebrateCompletion(dayId) {
-    state.currentDay = dayId;
-    const celebration = document.getElementById('celebration');
-    
-    // Tạo pháo hoa trước khi hiện modal
-    createConfetti();
-    
-    // Hiển thị modal sau 1 giây để pháo hoa kịp hiệu ứng
-    setTimeout(() => {
-        celebration.classList.add('active');
-    }, 1000);
-}
+            state.currentDay = dayId;
+            const celebration = document.getElementById('celebration');
 
-function hideCelebration() {
-    const celebration = document.getElementById('celebration');
-    celebration.classList.remove('active');
-    
-    // Reset pháo hoa
-    document.querySelectorAll('.confetti').forEach(el => el.remove());
-}
+            // Tạo pháo hoa trước khi hiện modal
+            createConfetti();
+
+            // Hiển thị modal sau 1 giây để pháo hoa kịp hiệu ứng
+            setTimeout(() => {
+                celebration.classList.add('active');
+            }, 1000);
+        }
+
+        function hideCelebration() {
+            const celebration = document.getElementById('celebration');
+            celebration.classList.remove('active');
+
+            // Reset pháo hoa
+            document.querySelectorAll('.confetti').forEach(el => el.remove());
+        }
 
         // Create confetti effect
         function createConfetti() {
