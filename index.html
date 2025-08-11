@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HiderTodoList</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #9370db;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #212529;
+            --white: #ffffff;
+            --pending: #ffb347;
+            --doing: #4cc9f0;
+            --blocked: #f72585;
+            --done: #57cc99;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark-gray);
+            line-height: 1.5;
+            padding: 0;
+            margin: 0;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #dfe1e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .add-day-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+        }
+
+        .add-day-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .days-container {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .day-card {
+            background-color: white;
+            border-radius: 10px;
+            width: 300px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .day-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .day-date {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .day-delete {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .day-content {
+            padding: 15px;
+        }
+
+        .status-column {
+            margin-bottom: 20px;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 2px solid;
+        }
+
+        .status-count {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+
+        .status-pending .status-header {
+            color: var(--pending);
+            border-color: var(--pending);
+        }
+
+        .status-doing .status-header {
+            color: var(--doing);
+            border-color: var(--doing);
+        }
+
+        .status-blocked .status-header {
+            color: var(--blocked);
+            border-color: var(--blocked);
+        }
+
+        .status-done .status-header {
+            color: var(--done);
+            border-color: var(--done);
+        }
+
+        .task-list {
+            min-height: 50px;
+            margin-bottom: 15px;
+        }
+
+        .task {
+            background-color: white;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            border-left: 4px solid;
+        }
+
+        .task-pending {
+            border-left-color: var(--pending);
+        }
+
+        .task-doing {
+            border-left-color: var(--doing);
+        }
+
+        .task-blocked {
+            border-left-color: var(--blocked);
+        }
+
+        .task-done {
+            border-left-color: var(--done);
+            opacity: 0.8;
+        }
+
+        .task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        }
+
+        .task-title {
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #6b778c;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .task-action {
+            color: #6b778c;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 4px;
+        }
+
+        .task-action:hover {
+            background-color: rgba(9, 30, 66, 0.08);
+            color: var(--dark-gray);
+        }
+
+        .add-task-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #6b778c;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            border: none;
+            background: none;
+        }
+
+        .add-task-btn:hover {
+            background-color: rgba(9, 30, 66, 0.08);
+            color: var(--dark-gray);
+        }
+
+        .add-task-form {
+            margin-top: 8px;
+            display: none;
+        }
+
+        .add-task-form.active {
+            display: block;
+        }
+
+        .add-task-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-family: inherit;
+            resize: none;
+        }
+
+        .add-task-input:focus {
+            outline: 2px solid var(--primary-color);
+        }
+
+        .add-task-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .add-task-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .add-task-submit:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .cancel-add-task {
+            font-size: 20px;
+            color: #6b778c;
+            cursor: pointer;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b778c;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select,
+        .form-date {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus,
+        .form-date:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(106, 90, 205, 0.2);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e4e9;
+        }
+
+        .btn-danger {
+            background-color: var(--blocked);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d11450;
+        }
+
+        /* Celebration styles */
+        .celebration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+}
+
+.celebration.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.celebration-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(0.8);
+    animation: celebrationPop 0.5s forwards;
+    position: relative;
+    z-index: 2001;
+}
+
+@keyframes celebrationPop {
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+        .celebration-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .celebration-message {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+        }
+
+        /* Welcome message */
+        .welcome-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s;
+        }
+
+        .welcome-message.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .welcome-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: center;
+            transform: translateY(-20px);
+            transition: transform 1s;
+        }
+
+        .welcome-message.active .welcome-content {
+            transform: translateY(0);
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .welcome-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .welcome-close {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Funny annotations */
+        .annotation {
+            position: absolute;
+            font-size: 12px;
+            color: #666;
+            background-color: #fff9c4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            transform: rotate(-5deg);
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .day-card:hover .annotation {
+            opacity: 1;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .days-container {
+                flex-direction: column;
+            }
+
+            .day-card {
+                width: 100%;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .status-done .status-header {
+            color: var(--done);
+            border-color: var(--done);
+        }
+
+        .task-done {
+            border-left-color: var(--done);
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-check-double"></i>
+            <span>HiderTodoList</span>
+        </div>
+        <div class="user-menu">
+            <div class="avatar">H</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <button class="add-day-btn" onclick="showAddDayModal()">
+            <i class="fas fa-plus"></i> Thêm ngày mới
+        </button>
+
+        <div class="days-container" id="days-container">
+            <!-- Days will be added here dynamically -->
+        </div>
+    </div>
+
+    <!-- Add Day Modal -->
+    <div class="modal" id="add-day-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Thêm ngày mới</h3>
+                <span class="modal-close" onclick="hideModal('add-day-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Tiêu đề ngày</label>
+                    <input type="text" class="form-input" id="day-title" placeholder="Ví dụ: Kế hoạch thứ 2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ngày</label>
+                    <input type="date" class="form-date" id="day-date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mục tiêu ngày</label>
+                    <textarea class="form-textarea" id="day-goal"
+                        placeholder="Mục tiêu chính của ngày này là gì?"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideModal('add-day-modal')">Hủy</button>
+                <button class="btn btn-primary" onclick="addNewDay()">Thêm ngày</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Chi tiết công việc</h3>
+                <span class="modal-close" onclick="hideModal('task-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Tiêu đề</label>
+                    <input type="text" class="form-input" id="task-title">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-textarea" id="task-desc"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Trạng thái</label>
+                    <select class="form-select" id="task-status">
+                        <option value="pending">Đang chờ</option>
+                        <option value="doing">Đang làm</option>
+                        <option value="blocked">Bị mắc</option>
+                        <option value="done">Đã làm</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="deleteCurrentTask()">Xóa</button>
+                <button class="btn btn-secondary" onclick="hideModal('task-modal')">Hủy</button>
+                <button class="btn btn-primary" onclick="saveTaskChanges()">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Celebration Modal -->
+    <div class="celebration" id="celebration">
+    <div class="celebration-content">
+        <div class="celebration-title">Chúc mừng! 🎉</div>
+        <div class="celebration-message">Bạn đã hoàn thành tất cả công việc trong ngày này! Thật tuyệt vời!</div>
+        <button class="btn btn-primary" onclick="hideCelebration()">Tuyệt vời!</button>
+    </div>
+</div>
+
+    <!-- Welcome Message -->
+    <div class="welcome-message" id="welcome-message">
+        <div class="welcome-content">
+            <h2 class="welcome-title">Chào buổi sáng! ☀️</h2>
+            <div class="welcome-text">
+                <p>Chúc bạn một ngày làm việc hiệu quả và tràn đầy năng lượng!</p>
+                <p>Hãy bắt đầu bằng cách thêm các công việc cần làm vào HiderTodoList của bạn.</p>
+                <p>Nhớ rằng: "Mỗi ngày là một cơ hội mới!"</p>
+            </div>
+            <button class="welcome-close" onclick="hideWelcomeMessage()">Bắt đầu ngày mới</button>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            days: JSON.parse(localStorage.getItem('hiderTodoList')) || [],
+            currentTask: null,
+            currentDay: null
+        };
+
+        // DOM Elements
+        const daysContainer = document.getElementById('days-container');
+        const celebration = document.getElementById('celebration');
+        const welcomeMessage = document.getElementById('welcome-message');
+
+        // Initialize the app
+        function init() {
+            renderDays();
+            checkMorningGreeting();
+            setupAnnotations();
+        }
+
+        // Render all days
+        function renderDays() {
+            daysContainer.innerHTML = '';
+
+            if (state.days.length === 0) {
+                daysContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <i class="fas fa-calendar-plus" style="font-size: 40px; margin-bottom: 15px;"></i>
+                        <p>Bạn chưa có ngày nào. Hãy thêm ngày mới để bắt đầu!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            state.days.forEach(day => {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day-card';
+                dayEl.dataset.dayId = day.id;
+
+                // Header with date and title
+                dayEl.innerHTML = `
+                    <div class="day-header">
+                        <div>
+                            <div class="day-title">${day.title}</div>
+                            <div class="day-date">${formatDate(day.date)}</div>
+                        </div>
+                        <button class="day-delete" onclick="deleteDay('${day.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="day-content">
+                        <div class="status-column status-pending">
+                            <div class="status-header">
+                                <span>Đang chờ</span>
+                                <span class="status-count">${countTasksByStatus(day.tasks, 'pending')}</span>
+                            </div>
+                            <div class="task-list" data-status="pending" data-day-id="${day.id}">
+                                ${renderTasks(day.tasks.filter(t => t.status === 'pending'), day.id, 'pending')}
+                            </div>
+                            <button class="add-task-btn" onclick="showAddTaskForm(this, '${day.id}', 'pending')">
+                                <i class="fas fa-plus"></i> Thêm công việc
+                            </button>
+                            <div class="add-task-form">
+                                <textarea class="add-task-input" placeholder="Nhập công việc..."></textarea>
+                                <div class="add-task-controls">
+                                    <button class="add-task-submit" onclick="addTaskFromForm('${day.id}', 'pending', this)">Thêm</button>
+                                    <i class="fas fa-times cancel-add-task" onclick="hideAddTaskForm(this)"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-column status-doing">
+                            <div class="status-header">
+                                <span>Đang làm</span>
+                                <span class="status-count">${countTasksByStatus(day.tasks, 'doing')}</span>
+                            </div>
+                            <div class="task-list" data-status="doing" data-day-id="${day.id}">
+                                ${renderTasks(day.tasks.filter(t => t.status === 'doing'), day.id, 'doing')}
+                            </div>
+                        </div>
+                        <div class="status-column status-done">
+                            <div class="status-header">
+                                <span>Đã làm</span>
+                                <span class="status-count">${countTasksByStatus(day.tasks, 'done')}</span>
+                            </div>
+                            <div class="task-list" data-status="done" data-day-id="${day.id}">
+                                ${renderTasks(day.tasks.filter(t => t.status === 'done'), day.id, 'done')}
+                            </div>
+                            
+</div>
+                        
+                        <div class="status-column status-blocked">
+                            <div class="status-header">
+                                <span>Bị mắc</span>
+                                <span class="status-count">${countTasksByStatus(day.tasks, 'blocked')}</span>
+                            </div>
+                            <div class="task-list" data-status="blocked" data-day-id="${day.id}">
+                                ${renderTasks(day.tasks.filter(t => t.status === 'blocked'), day.id, 'blocked')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="annotation" style="bottom: 10px; right: 10px;">Một ngày làm việc hiệu quả phía trước!</div>
+                `;
+
+                daysContainer.appendChild(dayEl);
+
+                // Setup drag and drop for tasks
+                setupDragAndDrop(dayEl);
+            });
+
+            // Check for completed days
+            checkForCompletedDays();
+        }
+
+        // Render tasks for a status column
+        function renderTasks(tasks, dayId, status) {
+            if (tasks.length === 0) {
+                return `
+                    <div style="text-align: center; padding: 15px; color: #999; font-size: 14px;">
+                        ${getEmptyStatusMessage(status)}
+                    </div>
+                `;
+            }
+
+            return tasks.map(task => `
+                <div class="task task-${task.status}" draggable="true" data-task-id="${task.id}" ondragstart="dragTask(event, '${dayId}', '${task.id}')">
+                    <div class="task-title">${task.title}</div>
+                    ${task.description ? `<div class="task-desc" style="font-size: 12px; color: #666; margin-bottom: 5px;">${task.description}</div>` : ''}
+                    <div class="task-footer">
+                        <small>${formatTime(task.createdAt)}</small>
+                        <div class="task-actions">
+                            <i class="fas fa-edit task-action" onclick="editTask('${dayId}', '${task.id}')"></i>
+                            <i class="fas fa-trash task-action" onclick="deleteTask('${dayId}', '${task.id}')"></i>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get funny message for empty status
+        function getEmptyStatusMessage(status) {
+            const messages = {
+                pending: "Không có gì đang chờ cả! Thêm việc đi nào!",
+                doing: "Bạn đang không làm gì à? Thêm việc thôi!",
+                blocked: "Tốt! Không có gì bị mắc cả!",
+                done: "Chưa có gì hoàn thành... Cố lên!"
+            };
+            return messages[status] || "Danh sách trống";
+        }
+
+        // Setup drag and drop for tasks
+        function setupDragAndDrop(dayElement) {
+            const taskLists = dayElement.querySelectorAll('.task-list');
+
+            taskLists.forEach(list => {
+                list.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    list.style.backgroundColor = 'rgba(106, 90, 205, 0.1)';
+                });
+
+                list.addEventListener('dragleave', () => {
+                    list.style.backgroundColor = '';
+                });
+
+                list.addEventListener('drop', e => {
+                    e.preventDefault();
+                    list.style.backgroundColor = '';
+
+                    if (window.draggedTask) {
+                        const { dayId, taskId } = window.draggedTask;
+                        const newStatus = list.dataset.status;
+                        moveTask(dayId, taskId, newStatus);
+                        window.draggedTask = null;
+                    }
+                });
+            });
+        }
+
+        // Drag task handler
+        function dragTask(event, dayId, taskId) {
+            event.dataTransfer.setData('text/plain', '');
+            window.draggedTask = { dayId, taskId };
+            event.currentTarget.classList.add('dragging');
+        }
+
+        // Move task to new status
+        function moveTask(dayId, taskId, newStatus) {
+            const day = state.days.find(d => d.id === dayId);
+            if (!day) return;
+
+            const task = day.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            task.status = newStatus;
+            saveState();
+            renderDays();
+
+            // Check if all tasks are done
+            checkForCompletedDays();
+        }
+
+        // Count tasks by status
+        function countTasksByStatus(tasks, status) {
+            return tasks.filter(t => t.status === status).length;
+        }
+
+        // Add new day
+        function addNewDay() {
+            const title = document.getElementById('day-title').value.trim();
+            const date = document.getElementById('day-date').value;
+            const goal = document.getElementById('day-goal').value.trim();
+
+            if (!title || !date) {
+                alert('Vui lòng nhập tiêu đề và ngày');
+                return;
+            }
+
+            const newDay = {
+                id: Date.now().toString(),
+                title,
+                date,
+                goal,
+                tasks: []
+            };
+
+            state.days.unshift(newDay);
+            saveState();
+            renderDays();
+            hideModal('add-day-modal');
+
+            // Reset form
+            document.getElementById('day-title').value = '';
+            document.getElementById('day-date').value = '';
+            document.getElementById('day-goal').value = '';
+        }
+
+        // Delete day
+        function deleteDay(dayId) {
+            if (confirm('Bạn có chắc chắn muốn xóa ngày này và tất cả công việc trong đó?')) {
+                state.days = state.days.filter(d => d.id !== dayId);
+                saveState();
+                renderDays();
+            }
+        }
+
+        // Show add task form
+        function showAddTaskForm(button, dayId, status) {
+            const addBtn = button;
+            const form = addBtn.nextElementSibling;
+
+            addBtn.style.display = 'none';
+            form.style.display = 'block';
+            form.querySelector('.add-task-input').focus();
+        }
+
+        // Hide add task form
+        function hideAddTaskForm(closeIcon) {
+            const form = closeIcon.closest('.add-task-form');
+            const addBtn = form.previousElementSibling;
+
+            form.style.display = 'none';
+            addBtn.style.display = 'flex';
+            form.querySelector('.add-task-input').value = '';
+        }
+
+        // Add task from form
+        function addTaskFromForm(dayId, status, button) {
+            const form = button.closest('.add-task-form');
+            const input = form.querySelector('.add-task-input');
+            const title = input.value.trim();
+
+            if (!title) return;
+
+            const day = state.days.find(d => d.id === dayId);
+            if (!day) return;
+
+            const newTask = {
+                id: Date.now().toString(),
+                title,
+                description: '',
+                status,
+                createdAt: new Date().toISOString()
+            };
+
+            day.tasks.unshift(newTask);
+            saveState();
+            renderDays();
+
+            // Reset form
+            input.value = '';
+            form.style.display = 'none';
+            form.previousElementSibling.style.display = 'flex';
+        }
+
+        // Edit task
+        function editTask(dayId, taskId) {
+            const day = state.days.find(d => d.id === dayId);
+            if (!day) return;
+
+            const task = day.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            state.currentTask = { dayId, taskId };
+
+            // Fill modal with task data
+            document.getElementById('task-title').value = task.title;
+            document.getElementById('task-desc').value = task.description || '';
+            document.getElementById('task-status').value = task.status;
+
+            showModal('task-modal');
+        }
+
+        // Save task changes
+        function saveTaskChanges() {
+            if (!state.currentTask) return;
+
+            const { dayId, taskId } = state.currentTask;
+            const day = state.days.find(d => d.id === dayId);
+            if (!day) return;
+
+            const task = day.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            const newStatus = document.getElementById('task-status').value;
+
+            // Update task properties
+            task.title = document.getElementById('task-title').value.trim();
+            task.description = document.getElementById('task-desc').value.trim();
+
+            // Move task if status changed
+            if (newStatus !== task.status) {
+                task.status = newStatus;
+            }
+
+            saveState();
+            renderDays();
+            hideModal('task-modal');
+
+            // Check if all tasks are done
+            checkForCompletedDays();
+        }
+
+        // Delete current task
+        function deleteCurrentTask() {
+            if (!state.currentTask) return;
+
+            const { dayId, taskId } = state.currentTask;
+            deleteTask(dayId, taskId);
+            hideModal('task-modal');
+        }
+
+        // Delete task
+        function deleteTask(dayId, taskId) {
+            if (confirm('Bạn có chắc chắn muốn xóa công việc này?')) {
+                const day = state.days.find(d => d.id === dayId);
+                if (!day) return;
+
+                day.tasks = day.tasks.filter(t => t.id !== taskId);
+                saveState();
+                renderDays();
+
+                // Check if all tasks are done
+                checkForCompletedDays();
+            }
+        }
+
+        // Check for completed days (all tasks done)
+        function checkForCompletedDays() {
+    state.days.forEach(day => {
+        // Bỏ qua nếu không có task nào
+        if (day.tasks.length === 0) return;
+        
+        // Kiểm tra xem tất cả task đều là 'done'
+        const allDone = day.tasks.every(t => t.status === 'done');
+        
+        if (allDone) {
+            // Kiểm tra xem ngày này đã được chúc mừng chưa
+            if (!day.celebrated) {
+                celebrateCompletion(day.id);
+                day.celebrated = true;
+                saveState();
+            }
+        } else {
+            // Reset trạng thái celebrated nếu có task chưa hoàn thành
+            day.celebrated = false;
+            saveState();
+        }
+    });
+}
+        function getEmptyStatusMessage(status) {
+            const messages = {
+                pending: "Không có gì đang chờ cả! Thêm việc đi nào!",
+                doing: "Bạn đang không làm gì à? Thêm việc thôi!",
+                blocked: "Tốt! Không có gì bị mắc cả!",
+                done: "Chưa có gì hoàn thành... Cố lên!"
+            };
+            return messages[status] || "Danh sách trống";
+        }
+
+        // Celebrate completion
+        function celebrateCompletion(dayId) {
+    state.currentDay = dayId;
+    const celebration = document.getElementById('celebration');
+    
+    // Tạo pháo hoa trước khi hiện modal
+    createConfetti();
+    
+    // Hiển thị modal sau 1 giây để pháo hoa kịp hiệu ứng
+    setTimeout(() => {
+        celebration.classList.add('active');
+    }, 1000);
+}
+
+function hideCelebration() {
+    const celebration = document.getElementById('celebration');
+    celebration.classList.remove('active');
+    
+    // Reset pháo hoa
+    document.querySelectorAll('.confetti').forEach(el => el.remove());
+}
+
+        // Create confetti effect
+        function createConfetti() {
+            // Remove existing confetti
+            document.querySelectorAll('.confetti').forEach(el => el.remove());
+
+            // Create new confetti
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = -10 + 'px';
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+
+                document.body.appendChild(confetti);
+
+                // Animate
+                const animation = confetti.animate([
+                    { top: '-10px', opacity: 0 },
+                    { top: '10px', opacity: 1 },
+                    { top: '100vh', opacity: 0 }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    delay: Math.random() * 1000
+                });
+
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        // Get random color for confetti
+        function getRandomColor() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff8800'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Check if it's morning and show welcome message
+        function checkMorningGreeting() {
+            const now = new Date();
+            const lastVisit = localStorage.getItem('lastVisit');
+            const today = now.toISOString().split('T')[0];
+
+            // Show welcome message if it's before noon and first visit today
+            if (now.getHours() < 12 && lastVisit !== today) {
+                setTimeout(() => {
+                    welcomeMessage.classList.add('active');
+                }, 1000);
+
+                localStorage.setItem('lastVisit', today);
+            }
+        }
+
+        // Hide welcome message
+        function hideWelcomeMessage() {
+            welcomeMessage.classList.remove('active');
+        }
+
+        // Setup funny annotations
+        function setupAnnotations() {
+            // Additional annotations can be added here
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
+        }
+
+        // Format time
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Show modal
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        // Hide modal
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Show add day modal
+        function showAddDayModal() {
+            document.getElementById('day-date').valueAsDate = new Date();
+            showModal('add-day-modal');
+        }
+
+        // Save state to localStorage
+        function saveState() {
+            localStorage.setItem('hiderTodoList', JSON.stringify(state.days));
+        }
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+
+</html>
