@@ -664,6 +664,34 @@
             border-color: var(--done);
         }
 
+        .continue-yesterday-btn {
+            background-color: #9370db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+        }
+
+        .continue-yesterday-btn:hover {
+            background-color: #7b5cb3;
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
         .task-done {
             border-left-color: var(--done);
             opacity: 0.8;
@@ -759,6 +787,34 @@
             <div class="modal-header">
                 <h3 class="modal-title">Thêm ngày mới</h3>
                 <span class="modal-close" onclick="hideModal('add-day-modal')">&times;</span>
+            </div>
+            <div class="button-group">
+                <button class="add-day-btn" onclick="showAddDayModal()">
+                    <i class="fas fa-plus"></i> Thêm ngày mới
+                </button>
+                <button class="continue-yesterday-btn" onclick="checkAndContinueYesterday()">
+                    <i class="fas fa-history"></i> Làm tiếp ngày hôm qua
+                </button>
+            </div>
+
+            <!-- Thêm modal xác nhận -->
+            <div class="modal" id="continue-yesterday-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Làm tiếp ngày hôm qua</h3>
+                        <span class="modal-close" onclick="hideModal('continue-yesterday-modal')">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <p>Bạn muốn tiếp tục các công việc chưa hoàn thành từ ngày hôm qua?</p>
+                        <div id="yesterday-tasks-preview"
+                            style="max-height: 200px; overflow-y: auto; margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="hideModal('continue-yesterday-modal')">Hủy</button>
+                        <button class="btn btn-primary" onclick="continueYesterday()">Tiếp tục</button>
+                    </div>
+                </div>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -1380,6 +1436,92 @@
             updateClock();
             setInterval(updateClock, 1000);
         }
+        function checkAndContinueYesterday() {
+    const yesterday = getYesterdayDate();
+    const yesterdayDay = state.days.find(day => day.date === yesterday);
+    
+    if (!yesterdayDay) {
+        alert('Không tìm thấy dữ liệu ngày hôm qua');
+        return;
+    }
+    
+    // Lọc các công việc chưa hoàn thành
+    const unfinishedTasks = yesterdayDay.tasks.filter(task => task.status !== 'done');
+    
+    if (unfinishedTasks.length === 0) {
+        alert('Ngày hôm qua đã hoàn thành tất cả công việc!');
+        return;
+    }
+    
+    // Hiển thị preview các công việc sẽ tiếp tục
+    const previewElement = document.getElementById('yesterday-tasks-preview');
+    previewElement.innerHTML = unfinishedTasks.map(task => 
+        `<div style="padding: 5px; border-bottom: 1px solid #ddd;">
+            <strong>${task.title}</strong> (${getStatusName(task.status)})
+        </div>`
+    ).join('');
+    
+    showModal('continue-yesterday-modal');
+}
+
+// Tiếp tục ngày hôm qua
+function continueYesterday() {
+    const yesterday = getYesterdayDate();
+    const yesterdayDay = state.days.find(day => day.date === yesterday);
+    
+    if (!yesterdayDay) {
+        alert('Không tìm thấy dữ liệu ngày hôm qua');
+        return;
+    }
+    
+    // Lọc các công việc chưa hoàn thành
+    const unfinishedTasks = yesterdayDay.tasks.filter(task => task.status !== 'done');
+    
+    // Tạo ngày mới với tiêu đề mặc định
+    const today = new Date().toISOString().split('T')[0];
+    const newDay = {
+        id: Date.now().toString(),
+        title: `Tiếp tục từ ${yesterdayDay.title}`,
+        date: today,
+        goal: yesterdayDay.goal || '',
+        tasks: []
+    };
+    
+    // Sao chép các công việc chưa hoàn thành sang ngày mới
+    unfinishedTasks.forEach(task => {
+        newDay.tasks.push({
+            ...task,
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+            status: 'pending' // Reset status về pending
+        });
+    });
+    
+    state.days.unshift(newDay);
+    saveState();
+    renderDays();
+    hideModal('continue-yesterday-modal');
+    
+    // Thông báo thành công
+    alert(`Đã tạo ngày mới với ${unfinishedTasks.length} công việc từ ngày hôm qua`);
+}
+
+// Lấy ngày hôm qua dưới dạng YYYY-MM-DD
+function getYesterdayDate() {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return yesterday.toISOString().split('T')[0];
+}
+
+// Lấy tên trạng thái
+function getStatusName(status) {
+    const statusNames = {
+        pending: 'Đang chờ',
+        doing: 'Đang làm',
+        blocked: 'Bị mắc',
+        done: 'Đã hoàn thành'
+    };
+    return statusNames[status] || status;
+}
     </script>
 </body>
 
