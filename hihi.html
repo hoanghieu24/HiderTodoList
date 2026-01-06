@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Máy Đo % Muốn Rời Công Ty - Note Tự Ghi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .emoji {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+        
+        .gauge-container {
+            padding: 40px 30px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        
+        .gauge {
+            height: 30px;
+            background: linear-gradient(to right, #4CAF50, #FFC107, #FF5722, #D81B60);
+            border-radius: 15px;
+            margin: 30px auto;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+        }
+        
+        .gauge-fill {
+            height: 100%;
+            background-color: #333;
+            border-radius: 15px;
+            width: 5%;
+            position: relative;
+            transition: width 0.5s ease;
+        }
+        
+        .gauge-percentage {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.5rem;
+            min-width: 60px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .gauge-percentage:after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 8px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        
+        .slider-container {
+            margin: 30px auto;
+            max-width: 800px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 25px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(to right, #4CAF50, #FFC107, #FF5722, #D81B60);
+            border-radius: 10px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 30px;
+            width: 30px;
+            border-radius: 50%;
+            background: #333;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 3px solid white;
+            margin-top: -9px;
+        }
+        
+        .status-container {
+            padding: 30px;
+            text-align: center;
+            background-color: white;
+            border-top: 1px solid #eee;
+        }
+        
+        .status-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .status-description {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .notes-container {
+            padding: 30px;
+            background-color: #f0f7ff;
+            border-top: 1px solid #ddd;
+        }
+        
+        .notes-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #1a5fb4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .add-note-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .add-note-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .note-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ff7e5f;
+        }
+        
+        .percent-select {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: white;
+            min-width: 120px;
+        }
+        
+        .note-button {
+            background: linear-gradient(90deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+        
+        .note-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .delete-button {
+            background: linear-gradient(90deg, #FF5722, #D84315);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .notes-list {
+            list-style-type: none;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .note-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid #ff7e5f;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .note-content {
+            flex: 1;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .note-icon {
+            font-size: 1.5rem;
+            color: #ff7e5f;
+        }
+        
+        .note-percent-badge {
+            background-color: #ff7e5f;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .note-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .explosion {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #f00;
+            border-radius: 50%;
+            opacity: 0;
+        }
+        
+        .button-container {
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .export-btn {
+            background: linear-gradient(90deg, #2196F3, #0D47A1);
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            padding: 20px;
+        }
+        
+        .empty-notes {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .status-text {
+                font-size: 1.4rem;
+            }
+            
+            .container {
+                margin-top: 10px;
+            }
+            
+            .note-input-group {
+                flex-direction: column;
+            }
+            
+            .note-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .note-content {
+                width: 100%;
+            }
+            
+            .note-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-running"></i> MÁY ĐO % MUỐN RỜI CÔNG TY</h1>
+            <p class="subtitle">Kéo thanh trượt để xem bạn đang ở mức độ nào - Tự thêm note cá nhân của bạn!</p>
+            <div class="emoji" id="emoji">😊</div>
+        </header>
+        
+        <div class="gauge-container">
+            <h2>TỶ LỆ MUỐN "XÁCH BALO LÊN VÀ ĐI"</h2>
+            <div class="gauge">
+                <div class="gauge-fill" id="gaugeFill">
+                    <div class="gauge-percentage" id="gaugePercentage">5%</div>
+                </div>
+            </div>
+            
+            <div class="slider-container">
+                <input type="range" min="0" max="100" value="5" step="1" class="slider" id="percentageSlider">
+            </div>
+            
+            <p>Kéo thanh trượt để thay đổi tỷ lệ % muốn rời công ty</p>
+        </div>
+        
+        <div class="status-container">
+            <div class="status-text" id="statusText">Vẫn còn yêu công ty lắm, đi làm đều đặn như cơm bữa</div>
+            <div class="status-description" id="statusDescription">Bạn vẫn đang tận hưởng môi trường làm việc, đồng nghiệp thân thiện và công việc ổn định. Có lẽ bạn nên ở lại thêm một thời gian nữa!</div>
+        </div>
+        
+        <div class="notes-container">
+            <h2 class="notes-title"><i class="fas fa-sticky-note"></i> NOTE CÁ NHÂN CỦA BẠN</h2>
+            
+            <div class="add-note-container">
+                <div class="add-note-title">
+                    <i class="fas fa-plus-circle"></i> Thêm note mới
+                </div>
+                <div class="note-input-group">
+                    <input type="text" id="noteInput" placeholder="Nhập lý do khiến bạn muốn rời đi...">
+                    <select class="percent-select" id="notePercent">
+                        <option value="10">10% - Hơi khó chịu</option>
+                        <option value="20">20% - Bắt đầu chán</option>
+                        <option value="30">30% - Khó chịu tăng</option>
+                        <option value="40">40% - Nhiều vấn đề</option>
+                        <option value="50" selected>50% - Phân vân</option>
+                        <option value="60">60% - Muốn thay đổi</option>
+                        <option value="70">70% - Rất chán</option>
+                        <option value="80">80% - Chuẩn bị đi</option>
+                        <option value="90">90% - Sắp có offer mới</option>
+                        <option value="100">100% - BÙNG NỔ!</option>
+                    </select>
+                    <button class="note-button" id="addNoteBtn">
+                        <i class="fas fa-plus"></i> Thêm Note
+                    </button>
+                </div>
+                <p><small><i class="fas fa-info-circle"></i> Note sẽ hiển thị khi % của bạn đạt hoặc vượt mức % của note</small></p>
+            </div>
+            
+            <ul class="notes-list" id="notesList">
+                <!-- Notes will be added dynamically -->
+            </ul>
+            
+            <div class="empty-notes" id="emptyNotesMessage">
+                <i class="fas fa-clipboard-list fa-2x" style="margin-bottom: 10px;"></i><br>
+                Chưa có note nào. Hãy thêm note cá nhân của bạn!
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button id="resetButton"><i class="fas fa-redo"></i> THỬ LẠI TỪ ĐẦU</button>
+            <button class="export-btn" id="exportNotesBtn"><i class="fas fa-download"></i> XUẤT NOTES</button>
+        </div>
+    </div>
+    
+    <div class="explosion" id="explosion"></div>
+    
+    <footer>
+        <p>Trang web được tạo ra với mục đích giải trí - Tự thêm note cá nhân của bạn!</p>
+        <p>© 2023 - Máy đo % rời công ty phiên bản note tự ghi</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slider = document.getElementById('percentageSlider');
+            const gaugeFill = document.getElementById('gaugeFill');
+            const gaugePercentage = document.getElementById('gaugePercentage');
+            const emoji = document.getElementById('emoji');
+            const statusText = document.getElementById('statusText');
+            const statusDescription = document.getElementById('statusDescription');
+            const notesList = document.getElementById('notesList');
+            const emptyNotesMessage = document.getElementById('emptyNotesMessage');
+            const explosion = document.getElementById('explosion');
+            const resetButton = document.getElementById('resetButton');
+            const noteInput = document.getElementById('noteInput');
+            const notePercent = document.getElementById('notePercent');
+            const addNoteBtn = document.getElementById('addNoteBtn');
+            const exportNotesBtn = document.getElementById('exportNotesBtn');
+            
+            // Status data based on percentage
+            const statusData = [
+                {percent: 0, emoji: "😴", text: "Ngủ quên trên chiến thắng, không nghĩ tới chuyện đi đâu", desc: "Bạn đang hài lòng với công việc hiện tại. Cứ tận hưởng đi!"},
+                {percent: 10, emoji: "😊", text: "Vẫn còn yêu công ty lắm, đi làm đều đặn như cơm bữa", desc: "Bạn vẫn đang tận hưởng môi trường làm việc, đồng nghiệp thân thiện và công việc ổn định. Có lẽ bạn nên ở lại thêm một thời gian nữa!"},
+                {percent: 20, emoji: "🤔", text: "Hmm... đôi lúc cũng nghĩ vẩn vơ về vài công ty khác", desc: "Thỉnh thoảng bạn lướt LinkedIn xem có cơ hội nào hấp dẫn không, nhưng chưa thực sự nghiêm túc."},
+                {percent: 30, emoji: "😐", text: "Bắt đầu thấy mệt mỏi với vài thứ trong công ty", desc: "Một số chính sách, đồng nghiệp hoặc công việc lặp đi lặp lại bắt đầu làm bạn cảm thấy chán."},
+                {percent: 40, emoji: "😒", text: "Lén lút cập nhật CV, nhưng chưa dám gửi đi đâu", desc: "Bạn đã chỉnh sửa CV vài lần nhưng vẫn chưa đủ can đảm để ứng tuyển chỗ khác."},
+                {percent: 50, emoji: "😕", text: "50/50 - Đi hay ở? Đầu đang rối như tơ vò", desc: "Một nửa muốn ở lại vì ổn định, nửa kia muốn đi tìm thử thách mới. Khó quyết định!"},
+                {percent: 60, emoji: "😏", text: "Bắt đầu đi phỏng vấn vài nơi cho biết", desc: "Bạn đã bắt đầu đi phỏng vấn ở vài công ty, nhưng vẫn chưa tìm được nơi ưng ý."},
+                {percent: 70, emoji: "😤", text: "Chán đến tận cổ, mỗi ngày đi làm là một cực hình", desc: "Bạn đếm từng ngày, từng giờ cho đến khi tan làm. Công việc không còn hứng thú nữa."},
+                {percent: 80, emoji: "🤯", text: "Chuẩn bị đơn xin nghỉ việc trong ngăn kéo", desc: "Đơn xin nghỉ việc đã được soạn sẵn, chỉ chờ thời cơ thích hợp là nộp."},
+                {percent: 90, emoji: "💼", text: "Đã có offer mới, chỉ chờ ngày nói lời tạm biệt", desc: "Bạn đã nhận được đề nghị công việc mới với mức lương và điều kiện tốt hơn. Sắp được tự do!"},
+                {percent: 100, emoji: "🎉", text: "BÙNG NỔ! XÁCH BALO LÊN VÀ ĐI THÔI!", desc: "Chính thức nộp đơn xin nghỉ việc! Tự do đang chờ đón bạn phía trước!"}
+            ];
+            
+            // User's personal notes (stored in localStorage)
+            let userNotes = JSON.parse(localStorage.getItem('quitJobNotes')) || [
+                {id: 1, text: "Sếp không công nhận công sức của mình", percent: 30},
+                {id: 2, text: "Lương tháng này thấp hơn kỳ vọng", percent: 40},
+                {id: 3, text: "Đồng nghiệp ăn hết bánh mình để trong tủ lạnh", percent: 20}
+            ];
+            
+            let noteIdCounter = userNotes.length > 0 ? Math.max(...userNotes.map(note => note.id)) + 1 : 4;
+            
+            // Function to save notes to localStorage
+            function saveNotes() {
+                localStorage.setItem('quitJobNotes', JSON.stringify(userNotes));
+            }
+            
+            // Function to update the UI based on percentage
+            function updateUI(percent) {
+                // Update gauge
+                gaugeFill.style.width = `${percent}%`;
+                gaugePercentage.textContent = `${percent}%`;
+                gaugePercentage.style.left = `${percent}%`;
+                
+                // Find the appropriate status based on percentage
+                let currentStatus = statusData[0];
+                for (let i = statusData.length - 1; i >= 0; i--) {
+                    if (percent >= statusData[i].percent) {
+                        currentStatus = statusData[i];
+                        break;
+                    }
+                }
+                
+                // Update status
+                emoji.textContent = currentStatus.emoji;
+                statusText.textContent = currentStatus.text;
+                statusDescription.textContent = currentStatus.desc;
+                
+                // Update notes display
+                displayNotes(percent);
+                
+                // If 100%, trigger explosion
+                if (percent === 100) {
+                    triggerExplosion();
+                }
+            }
+            
+            // Function to display notes based on current percentage
+            function displayNotes(currentPercent) {
+                notesList.innerHTML = '';
+                
+                // Filter notes that should be shown based on current percentage
+                const notesToShow = userNotes.filter(note => currentPercent >= note.percent);
+                
+                // Sort notes by percentage (descending)
+                notesToShow.sort((a, b) => b.percent - a.percent);
+                
+                // Show/hide empty message
+                if (notesToShow.length === 0) {
+                    emptyNotesMessage.style.display = 'block';
+                } else {
+                    emptyNotesMessage.style.display = 'none';
+                    
+                    // Display each note
+                    notesToShow.forEach(note => {
+                        const noteItem = document.createElement('li');
+                        noteItem.className = 'note-item';
+                        noteItem.dataset.id = note.id;
+                        
+                        // Determine emoji based on percentage
+                        let noteEmoji = "📝";
+                        if (note.percent >= 80) noteEmoji = "🔥";
+                        else if (note.percent >= 60) noteEmoji = "😠";
+                        else if (note.percent >= 40) noteEmoji = "😒";
+                        else if (note.percent >= 20) noteEmoji = "🤔";
+                        
+                        noteItem.innerHTML = `
+                            <div class="note-content">
+                                <div class="note-icon">${noteEmoji}</div>
+                                <div class="note-text">${note.text}</div>
+                                <div class="note-percent-badge">${note.percent}%</div>
+                            </div>
+                            <div class="note-actions">
+                                <button class="delete-button delete-note-btn" data-id="${note.id}">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </div>
+                        `;
+                        notesList.appendChild(noteItem);
+                    });
+                    
+                    // Add event listeners to delete buttons
+                    document.querySelectorAll('.delete-note-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const id = parseInt(this.dataset.id);
+                            deleteNote(id);
+                        });
+                    });
+                }
+            }
+            
+            // Function to add a new note
+            function addNote() {
+                const text = noteInput.value.trim();
+                const percent = parseInt(notePercent.value);
+                
+                if (!text) {
+                    alert('Vui lòng nhập nội dung note!');
+                    noteInput.focus();
+                    return;
+                }
+                
+                const newNote = {
+                    id: noteIdCounter++,
+                    text: text,
+                    percent: percent
+                };
+                
+                userNotes.push(newNote);
+                saveNotes();
+                
+                // Clear input
+                noteInput.value = '';
+                noteInput.focus();
+                
+                // Update display
+                const currentPercent = parseInt(slider.value);
+                displayNotes(currentPercent);
+                
+                // Show confirmation
+                alert(`Đã thêm note "${text}" với mức ${percent}%`);
+            }
+            
+            // Function to delete a note
+            function deleteNote(id) {
+                if (confirm('Bạn có chắc muốn xóa note này?')) {
+                    userNotes = userNotes.filter(note => note.id !== id);
+                    saveNotes();
+                    
+                    const currentPercent = parseInt(slider.value);
+                    displayNotes(currentPercent);
+                }
+            }
+            
+            // Function to export notes
+            function exportNotes() {
+                if (userNotes.length === 0) {
+                    alert('Không có note nào để xuất!');
+                    return;
+                }
+                
+                // Sort notes by percentage
+                const sortedNotes = [...userNotes].sort((a, b) => a.percent - b.percent);
+                
+                // Create export text
+                let exportText = "DANH SÁCH NOTE MUỐN RỜI CÔNG TY\n";
+                exportText += "================================\n\n";
+                
+                sortedNotes.forEach(note => {
+                    exportText += `[${note.percent}%] ${note.text}\n`;
+                });
+                
+                exportText += `\nTổng cộng: ${userNotes.length} note\n`;
+                exportText += `Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}\n`;
+                
+                // Create download link
+                const blob = new Blob([exportText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `notes-roi-cong-ty-${new Date().toISOString().slice(0, 10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert(`Đã xuất ${userNotes.length} note thành file!`);
+            }
+            
+            // Function to create explosion effect
+            function triggerExplosion() {
+                explosion.style.display = 'block';
+                explosion.innerHTML = '';
+                
+                // Create confetti
+                const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+                const confettiCount = 150;
+                
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.top = `${Math.random() * 100}%`;
+                    confetti.style.width = `${Math.random() * 15 + 5}px`;
+                    confetti.style.height = confetti.style.width;
+                    
+                    explosion.appendChild(confetti);
+                    
+                    // Animate confetti
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = 30 + Math.random() * 30;
+                    const vx = Math.cos(angle) * velocity;
+                    const vy = Math.sin(angle) * velocity;
+                    
+                    let opacity = 1;
+                    let x = parseFloat(confetti.style.left);
+                    let y = parseFloat(confetti.style.top);
+                    
+                    const fadeInterval = setInterval(() => {
+                        opacity -= 0.02;
+                        x += vx / 10;
+                        y += vy / 10;
+                        vy += 0.5; // gravity
+                        
+                        confetti.style.opacity = opacity;
+                        confetti.style.left = `${x}%`;
+                        confetti.style.top = `${y}%`;
+                        
+                        if (opacity <= 0 || y > 100) {
+                            clearInterval(fadeInterval);
+                            confetti.remove();
+                        }
+                    }, 30);
+                }
+                
+                // Hide explosion after 3 seconds
+                setTimeout(() => {
+                    explosion.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Event listeners
+            slider.addEventListener('input', function() {
+                const percent = parseInt(this.value);
+                updateUI(percent);
+            });
+            
+            resetButton.addEventListener('click', function() {
+                slider.value = 5;
+                updateUI(5);
+            });
+            
+            addNoteBtn.addEventListener('click', addNote);
+            
+            noteInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addNote();
+                }
+            });
+            
+            exportNotesBtn.addEventListener('click', exportNotes);
+            
+            // Initialize UI with default value
+            const initialPercent = parseInt(slider.value);
+            updateUI(initialPercent);
+            
+            // Add some random fun effects
+            const emojis = ["😊", "😂", "🤣", "😍", "😎", "🤓", "😜", "😇", "🤗", "😱", "🤔", "😴"];
+            let currentEmojiIndex = 0;
+            
+            // Change header emoji randomly every few seconds
+            setInterval(() => {
+                if (parseInt(slider.value) < 80) { // Only change if not too stressed
+                    emoji.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        emoji.style.transform = 'scale(1)';
+                    }, 200);
+                    
+                    // Cycle through emojis
+                    currentEmojiIndex = (currentEmojiIndex + 1) % emojis.length;
+                    if (parseInt(slider.value) < 50) {
+                        emoji.textContent = emojis[currentEmojiIndex];
+                    }
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
